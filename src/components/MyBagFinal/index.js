@@ -1,16 +1,17 @@
 /* eslint-disable no-lone-blocks */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Styles from "./Styles.module.css";
 import Img1 from "./Images/Eye1.png";
 import QuantitySelector from "../BrandDetails/Accordion/QuantitySelector";
 import { useNavigate } from "react-router-dom";
-import { GetAuthData, OrderPlaced, POGenerator, ShareDrive, fetchBeg, getProductImageAll } from "../../lib/store";
+import { GetAuthData, OrderPlaced, POGenerator, ShareDrive, fetchBeg, getProductImageAll, getCreditNotes } from "../../lib/store";
 import { useBag } from "../../context/BagContext";
 import OrderLoader from "../loader";
 import ModalPage from "../Modal UI";
 import StylesModal from "../Modal UI/Styles.module.css";
 import LoaderV2 from "../loader/v2";
 import ProductDetails from "../../pages/productDetails";
+import { Modal } from 'react-bootstrap';
 
 function MyBagFinal() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ function MyBagFinal() {
   const [PONumber, setPONumber] = useState(POGenerator());
   const [buttonActive, setButtonActive] = useState(false);
   const { addOrder, orderQuantity, deleteOrder, orders, setOrders,setOrderProductPrice } = useBag();
-  const [bagValue, setBagValue] = useState(fetchBeg());
+  const [bagValue, setBagValue] = useState(fetchBeg())
   const [isOrderPlaced, setIsOrderPlaced] = useState(0);
   const [isPOEditable, setIsPOEditable] = useState(false);
   const [PONumberFilled, setPONumberFilled] = useState(true);
@@ -27,28 +28,116 @@ function MyBagFinal() {
   // console.log({aa:Object.values(bagValue?.orderList)?.length});
   const [limitInput, setLimitInput] = useState("");
 
+  const [userData, setUserData] = useState(null)
+  const [showModal, setShowModal] = useState(false)
+  const [priceValue, setPriceValue] = useState("")
+  const [fullPriceValue, setFullPriceValue] = useState("")
+  const [isEditable, setIsEditable] = useState(false)
+  const [isCheckboxChecked, setIsCheckboxChecked] = useState(false)
+  const [creditNote, setCreditNote ] = useState({})
+  const [subTotal, setSubTotal] = useState(0)
+  const [validationMessage, setValidationMessage] = useState('')
+
+  const inputRef = useRef(null)
+
+  const handleEditClick = () => {
+    setValidationMessage('')
+    setIsEditable(!isEditable)
+    setIsCheckboxChecked(false)
+    localStorage.setItem('creditAmount', '')
+    setPriceValue('')
+    setFullPriceValue('$')
+    inputRef.current.focus()
+  }
+
+  const extractWordAfterCharacter = (input, character) => {
+    const regex = new RegExp(`\\${character}(\\w+)`)
+    const match = input.match(regex)
+    // console.log({match:match[1]})
+    return match ? match[1] : ''
+  }
+
+  const handlePriceChange = (e) => {
+    const val = e.target.value
+    const character = '$'
+    const value = Number(extractWordAfterCharacter(val, character))
+    // console.log({subTotal, value, available:creditNote.available})
+    
+    if (value === '' || (parseFloat(value) >= 0 && value <= creditNote.available && value <= subTotal)) {
+      setPriceValue(value)
+      localStorage.setItem('creditAmount', value)
+      setFullPriceValue('$' + value)
+      setValidationMessage('')
+
+      console.log({lll : localStorage.getItem('creditAmount')})
+    } else {
+      setValidationMessage('Enter Valid Amount for Credit Allocation')
+
+      setTimeout(() => {
+        setValidationMessage('')
+      }, 3000)
+    }
+  }
+
+  const handleCheckboxChange = (e) => {
+    // setIsEditable(e.target.checked)
+    setIsCheckboxChecked(e.target.checked)
+    if (e.target.checked) {
+      console.log({cond: (creditNote.available <= subTotal),ava : creditNote.available, subTotal })
+      if(creditNote.available <= subTotal)
+      {
+        setPriceValue(creditNote.available)
+        localStorage.setItem('creditAmount', creditNote.available)
+        setFullPriceValue('$' + creditNote.available)
+        setValidationMessage('')
+      }
+      else{
+        setValidationMessage(`You can't set the value above the Sub Total Value - $${creditNote.available}.`)
+
+        setTimeout(() => {
+          setValidationMessage('')
+        }, 3000)
+      }
+    } else {
+      setPriceValue('0')
+      localStorage.setItem('creditAmount', 0)
+      setFullPriceValue('$0')
+      setValidationMessage('')
+    }
+
+  }
+
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
+
+  const handleSubmitModal = () => {
+    handleCloseModal()
+  }
+
   const handleNameChange = (event) => {
-      const limit = 20;
-      setLimitInput(event.target.value.slice(0, limit));
-    };
+    const limit = 10
+    setLimitInput(event.target.value.slice(0, limit))
+  }
+
   useEffect(() => {
     if (bagValue?.Account?.id && bagValue?.Manufacturer?.id && Object.values(bagValue?.orderList)?.length > 0) {
       setButtonActive(true);
     }
-  }, []);
+  }, [])
+
   let total = 0;
   const [productImage, setProductImage] = useState({ isLoaded: false, images: {} });
 
   useEffect(() => {
     let data = ShareDrive();
     if (!data) {
-      data = {};
+      data = {}
     }
     if (bagValue) {
       if (bagValue?.Manufacturer) {
         if (bagValue?.Manufacturer?.id) {
           if (!data[bagValue?.Manufacturer?.id]) {
-            data[bagValue?.Manufacturer?.id] = {};
+            data[bagValue?.Manufacturer?.id] = {}
           }
           if (Object.values(data[bagValue.Manufacturer.id]).length > 0) {
             setProductImage({ isLoaded: true, images: data[bagValue.Manufacturer.id] })
@@ -86,7 +175,9 @@ function MyBagFinal() {
     if (bagValue?.Account?.id && bagValue?.Manufacturer?.id && Object.values(bagValue?.orderList)?.length > 0 && total > 0) {
       setButtonActive(true);
     }
-  }, [total, bagValue]);
+
+    setSubTotal(total)
+  }, [total, bagValue, subTotal]);
 
   const onPriceChangeHander = (product,price='0')=>{
     if(price == '') price = 0;
@@ -96,6 +187,24 @@ function MyBagFinal() {
       }
     })
   }
+
+  useEffect(() => {
+    GetAuthData().then((user) => {
+      setUserData(user)
+      if (bagValue?.Account?.id && bagValue?.Manufacturer?.id) {
+        const token = user?.data?.x_access_token
+        const retailer = bagValue.Account.id
+        const manufacture = bagValue.Manufacturer.id
+        // console.log({token, retailer, manufacture})
+        if (token && retailer && manufacture) {
+          getCreditNotes(token, retailer, manufacture).then((note) => {
+            setCreditNote(note)
+          }).catch((noteErr) => console.log({ noteErr: noteErr.message }))
+        }
+      }
+
+    }).catch((e) => console.log({ e }))
+  }, [])
 
   const orderPlaceHandler = () => {
     if(localStorage.getItem("Sales_Rep__c")){
@@ -135,6 +244,7 @@ function MyBagFinal() {
             ShippingCountry:fetchBag?.Account?.address?.country,
             ShippingZip:fetchBag?.Account?.address?.postalCode,
             list,
+            creditAmount: localStorage.getItem('creditAmount'),
             key: user.data.x_access_token,
             shippingMethod:fetchBag.Account.shippingMethod
           };
@@ -143,6 +253,7 @@ function MyBagFinal() {
               if (response) {
                 fetchBag.orderList.map((ele) => addOrder(ele.product, 0, ele.discount));
                 localStorage.removeItem("orders");
+                localStorage.removeItem('creditAmount')
                 navigate("/order-list");
                 setIsOrderPlaced(2);
               }
@@ -403,6 +514,96 @@ function MyBagFinal() {
                         }}
                       />
                     ) : null}
+
+                    {priceValue || localStorage.getItem('creditAmount') > 0 ?
+                        <div className={Styles.ShipAdress}>
+                          <div className="row">
+                            <div className="col-md-5">Sub Total :</div>
+                            <div className="col-md-5">${Number(total).toFixed(2)}</div>
+                          </div>
+                          <div className="row">
+                            <div className="col-md-5">Credit Amount :</div>
+                            <div className="col-md-5">${Number(localStorage.getItem('creditAmount')).toFixed(2)}</div>
+                          </div>
+                        </div>
+                        :
+                        <button className={Styles.CredBut} onClick={handleShowModal}>Apply credit Note</button>
+                      }
+
+                      {/* /// credit Modal.....Start */}
+                      <Modal size="lg" aria-labelledby="contained-modal-title-vcenter"
+                        centered show={showModal}
+                        onHide={handleCloseModal}>
+                        <Modal.Title className={Styles.Credittitles}>
+                          Credit Notes 
+                          {/* <span>(3)</span> */}
+                        </Modal.Title>
+                        <div className={Styles.mainRadioDiv}>
+                          <Modal.Body>
+                            <div className={Styles.inputRadio}>
+                              <div className={Styles.inputA}>
+                                <input type="radio" id="input1" name="creditNote" defaultChecked />
+                                <label htmlFor="input1">Available Credit</label>
+                                <div className={Styles.creditPrice}>
+                                  <b>$ {creditNote.available} </b>
+                                </div>
+                              </div>
+                              <div className={Styles.editablePrice}>
+                                <div className={Styles.inputDiv}>
+                                  <input
+                                    type="text"
+                                    className={Styles.price}
+                                    value={fullPriceValue}
+                                    onChange={handlePriceChange}
+                                    readOnly={!isEditable}
+                                    ref={inputRef}
+                                  />
+                                </div>
+                                <div>
+                                  <img className={Styles.editIcon} onClick={handleEditClick} src="assets/images/pencil-square.png" alt="ss" />
+                                </div>
+                                <div className={Styles.checkDev}> <p>Use Full Amount</p> </div>
+                                <input className={Styles.checkBox} onChange={handleCheckboxChange} checked={isCheckboxChecked}  type="checkbox" id="" />
+                              </div>
+                            </div> 
+
+                            {validationMessage && (
+                              <p className={Styles.validationError}>{validationMessage}</p>
+                            )}
+
+                            {/* <div className={Styles.inputRadio2}>
+                              <input type="radio" id="input2" name="creditNote" disabled />
+                              <label htmlFor="input2">Not Available Yet</label>
+                              <div>
+                                <strong className={Styles.price2}>-$320 <br /><span className={Styles.dateDetails}>Uss Full Amount</span></strong>
+
+                              </div>
+                            </div>
+
+                            <div className={Styles.inputRadio3}>
+                              <input type="radio" id="input3" name="creditNote" disabled />
+                              <label htmlFor="input3">Not Available Yet</label>
+                              <div>
+                                <strong className={Styles.price3}>-$410 <br /><span className={Styles.dateDetails}>Uss Full Amount</span></strong>
+                              </div>
+                            </div> */}
+
+                          </Modal.Body>
+
+                          <div className={Styles.bothbutton}>
+                            <div>
+                              <button className={Styles.CancleBtn} onClick={handleCloseModal}>Cancel</button>
+                            </div>
+                            <div><button className={Styles.submitBtn} onClick={handleSubmitModal}>Submit</button></div>
+                          </div>
+
+                        </div>
+                      </Modal>
+                      {/* /// credit Modal.... End */}
+
+
+
+
                     <div className={Styles.ShipBut}>
                       <button
                         onClick={() => {
@@ -416,7 +617,7 @@ function MyBagFinal() {
                         }}
                         disabled={!buttonActive}
                       >
-                        ${Number(total).toFixed(2)} PLACE ORDER
+                        $ {(localStorage.getItem('creditAmount') > 0) ? Number(total - localStorage.getItem('creditAmount')).toFixed(2) : Number(total).toFixed(2) } PLACE ORDER
                       </button>
                       <p className={`${Styles.ClearBag}`} style={{textAlign:'center',cursor:'pointer'}} 
                       onClick={()=>{if(Object.keys(orders).length){

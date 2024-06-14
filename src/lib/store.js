@@ -2,7 +2,8 @@
 // export const originAPi = "https://dev.beautyfashionsales.com"
 // export const originAPi = "http://localhost:3001"
 
-export const originAPi = "http://localhost:8010"
+export const originAPi = "https://www.uditchauhan.com"
+// export const originAPi = "http://localhost:8010"
 
 let url = `${originAPi}/retailer/`;
 const orderKey = "orders";
@@ -53,6 +54,7 @@ export async function AuthCheck() {
     return false;
   }
 }
+
 export function formatNumber(num) {
   if (num >= 0 && num < 1000000) {
     return (num / 1000).toFixed(1) + 'K';
@@ -64,6 +66,7 @@ export function formatNumber(num) {
     return num;
   }
 }
+
 export const sortArrayHandler = (arr, getter, order = 'asc') =>
   arr.sort(
     order === 'desc'
@@ -346,10 +349,34 @@ export async function getRetailerBrands({ rawData }) {
     headers: headersList,
   });
   let data = JSON.parse(await response.text());
+  console.log({lllllllllllhhhhhh:data})
   if (data.status == 300) {
     DestoryAuth();
   } else {
     return data.data;
+  }
+}
+
+export async function getRetailerBrandsNew(rawData) {
+  let headersList = {
+    Accept: "*/*",
+    "Content-Type": "application/json",
+  };
+  let response = await fetch(originAPi + "/retailer/GQGpen0kmGHGPtx", {
+    method: "POST",
+    body: JSON.stringify(rawData),
+    headers: headersList,
+  })
+
+  console.log({response})
+  
+  let res = await response.text()
+  let data = JSON.parse(res)
+  
+  if (data.status == 300) {
+    DestoryAuth();
+  } else {
+    return data?.data;
   }
 }
 
@@ -829,6 +856,51 @@ export async function getMarketingCalendarPDFV3({ key, manufacturerId, month, ma
     DestoryAuth();
   } else {
     return data?.file || false;
+  }
+}
+
+export async function getCreditNotes(key, retailer, manufacturer) {
+  const headersList = {
+    Accept: "*/*",
+    "Content-Type": "application/json",
+    key : key
+  }
+
+  let response = await fetch(originAPi + "/test/applyCreditNotes", {
+    method: "POST",
+    body: JSON.stringify({ retailer, manufacturer }),
+    headers: headersList,
+  })
+  let data = JSON.parse(await response.text());
+  if (data.status == 300) {
+    DestoryAuth()
+  } else {
+    console.log({dataResult : data?.result})
+    return data?.result
+  }
+}
+
+export async function getCreditNotesList(key, retailer='', manufacturer='') {
+  console.log({key, retailer, manufacturer})
+  const headersList = {
+    Accept: "*/*",
+    "Content-Type": "application/json",
+    key : key
+  }
+
+  let response = await fetch(originAPi + "/test/creditNotes", {
+    method: "POST",
+    body: JSON.stringify({ retailer: retailer, manufacturer: manufacturer }),
+    headers: headersList,
+  })
+
+  let data = JSON.parse(await response.text())
+
+  if (data.status == 300) {
+    DestoryAuth()
+  } else {
+    console.log({ dataResult : data?.data?.records })
+    return data?.data?.records
   }
 }
 

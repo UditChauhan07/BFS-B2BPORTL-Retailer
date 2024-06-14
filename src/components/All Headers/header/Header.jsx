@@ -25,6 +25,11 @@ const Header = () => {
         </Link>
       </p>
       <p className={`m-0  ${styles.text}`}>
+          <Link to="/credit-note" className="linkStyle">
+          Credit Note
+          </Link>
+        </p>
+      <p className={`m-0  ${styles.text}`}>
         <Link to="/customer-support" className="linkStyle">
           Customer Support
         </Link>
