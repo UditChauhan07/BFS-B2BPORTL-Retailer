@@ -7,21 +7,17 @@ import Style from "../pages/CreditNote.module.css";
 import Loading from "../components/Loading";
 import AppLayout from '../components/AppLayout';
 import { FilterItem } from '../components/FilterItem';
-import { GetAuthData, getRetailerBrandsNew, getCreditNotesList } from "../lib/store";
-// import { useManufacturer } from "../api/useManufacturer";
+import { GetAuthData, getRetailerBrandsNew, getCreditNotesList } from "../lib/store"
 
 
 const CreditNote = () => {
     let img = 'assets/default-image.png'
-    // const { data: manufacturers } = useManufacturer()
     const [userData, setUserData] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [isLoadedManufacture, setIsLoadedManufacture] = useState(false)
     const [manufacturerFilter, setManufacturerFilter] = useState()
     const [data, setData] = useState([])
     const [brand, setBrand] = useState({})
-
-    // console.log({manufacturers})
     
     useEffect(() => {
         setIsLoadedManufacture(true)
