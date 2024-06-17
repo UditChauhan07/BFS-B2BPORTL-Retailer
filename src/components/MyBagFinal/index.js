@@ -303,6 +303,7 @@ function MyBagFinal() {
   }
   const deleteBag= ()=>{
     localStorage.removeItem("orders")
+    localStorage.removeItem("creditAmount")
     window.location.reload();
   }
   if (isOrderPlaced === 1) return <OrderLoader />;
@@ -455,14 +456,38 @@ function MyBagFinal() {
                           </>
                         )}
                       </div>
-                      <div className={Styles.TotalPricer}>
+
+                      {/* New Total Start */}
+                      <div className={Styles.PreviousPricer}>
                         <div>
-                          <h2>Total</h2>
+                        <h2>Previous Total</h2>
                         </div>
                         <div>
                           <h2>${Number(total).toFixed(2)}</h2>
                         </div>
                       </div>
+                      <div className={Styles.DiscountPricer}>
+                        <div>
+                        <p>Credit Note Discount</p>
+                        </div>
+                        <div className={Styles.editPrice}>
+                          <h2 className={Styles.disprice}>-${Number(localStorage.getItem('creditAmount')).toFixed(2) }</h2>
+                            <img src="assets/images/pencil-square.png" alt="edit-icon" onClick={handleShowModal}/>
+                        </div>
+                      </div>
+
+                      {/* New Total End */}
+                      <div className={Styles.TotalPricer}>
+                        <div>
+                          <h2>Sub Total</h2>
+                        </div>
+                        <div>
+                          <h2>${(localStorage.getItem('creditAmount') > 0) ? Number(total - localStorage.getItem('creditAmount')).toFixed(2) : Number(total).toFixed(2)}</h2>
+                        </div>
+                      </div>
+
+
+
                     </div>
                   </div>
                 </div>
@@ -516,16 +541,7 @@ function MyBagFinal() {
                     ) : null}
 
                     {priceValue || localStorage.getItem('creditAmount') > 0 ?
-                        <div className={Styles.ShipAdress}>
-                          <div className="row">
-                            <div className="col-md-5">Sub Total :</div>
-                            <div className="col-md-5">${Number(total).toFixed(2)}</div>
-                          </div>
-                          <div className="row">
-                            <div className="col-md-5">Credit Amount :</div>
-                            <div className="col-md-5">${Number(localStorage.getItem('creditAmount')).toFixed(2)}</div>
-                          </div>
-                        </div>
+                        ''
                         :
                         <button className={Styles.CredBut} onClick={handleShowModal}>Apply credit Note</button>
                       }
@@ -553,7 +569,7 @@ function MyBagFinal() {
                                   <input
                                     type="text"
                                     className={Styles.price}
-                                    value={fullPriceValue}
+                                    value={`$` + localStorage.getItem('creditAmount') }
                                     onChange={handlePriceChange}
                                     readOnly={!isEditable}
                                     ref={inputRef}

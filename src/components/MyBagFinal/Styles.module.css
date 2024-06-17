@@ -763,3 +763,71 @@ input[type="checkbox"] {
   margin: 20px 0px;
 }
 
+
+.PreviousPricer{
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 5px 0 5px;
+}
+
+.TotalPricer {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 5px 0 5px;
+}
+.PreviousPricer h2 {
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 32px;
+  /* 177.778% */
+  letter-spacing: 1.12px;
+}
+.DiscountPricer{
+  
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 5px 0 5px;
+ 
+}
+.DiscountPricer p{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 32px;
+  /* 177.778% */
+  letter-spacing: 1.12px;
+}
+.DiscountPricer .disprice{
+  color: rgba(88, 168, 18, 1);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 32px;
+  /* 177.778% */
+  letter-spacing: 1.12px;
+}
+
+.TotalPricer h2 {
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 32px;
+  /* 177.778% */
+  letter-spacing: 1.12px;
+}
+
+.editPrice{
+  display: flex;
+    align-items: baseline;
+    cursor: pointer;
+}
+.editPrice img{
+  height: 15px;
+}
