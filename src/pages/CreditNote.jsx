@@ -27,17 +27,17 @@ const CreditNote = () => {
             const raw = {
                 accountId : user?.data?.accountId, 
                 key : user?.data?.x_access_token
-              }
+            }
 
-              getRetailerBrandsNew(raw).then( async (data) => {
+            getRetailerBrandsNew(raw).then( async (data) => {
                 const result = await data
                 console.log({result})
                 setBrand(result)
                 setIsLoadedManufacture(false)
-              })
-              .catch((err) => {
+            })
+            .catch((err) => {
                 console.log({ err: err.message })
-              })
+            })
         }).catch((e) => {
             console.log({ e: e.message })
             setIsLoading(false)
