@@ -5,15 +5,15 @@
 export const originAPi = "https://www.uditchauhan.com"
 // export const originAPi = "http://localhost:8010"
 
-let url = `${originAPi}/retailer/`;
-const orderKey = "orders";
-const accountIdKey = "AccountId__c";
-const brandIdKey = "ManufacturerId__c";
-const brandKey = "Account";
-const accountKey = "manufacturer";
-const POCount = "woX5MkCSIOlHXkT";
-const support = "AP0HBuNwbNnuhKR";
-const shareKey = "3a16FWFtoPA5FMC";
+let url = `${originAPi}/retailer/`
+const orderKey = "orders"
+const accountIdKey = "AccountId__c"
+const brandIdKey = "ManufacturerId__c"
+const brandKey = "Account"
+const accountKey = "manufacturer"
+const POCount = "woX5MkCSIOlHXkT"
+const support = "AP0HBuNwbNnuhKR"
+const shareKey = "3a16FWFtoPA5FMC"
 // export const originAPi = "https://dev.beautyfashionsales.com"
 
 export const months = [
@@ -48,10 +48,10 @@ export function ShareDrive(data, remove = false) {
 export async function AuthCheck() {
   console.log({ aa: JSON.parse(localStorage.getItem("jAuNW7c6jdi6mg7")) });
   if (JSON.parse(localStorage.getItem("jAuNW7c6jdi6mg7"))) {
-    return true;
+    return true
   } else {
-    DestoryAuth();
-    return false;
+    DestoryAuth()
+    return false
   }
 }
 
