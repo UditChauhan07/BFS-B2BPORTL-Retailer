@@ -75,7 +75,7 @@ function MyBagFinal() {
 
       setTimeout(() => {
         setValidationMessage('')
-      }, 3000)
+      }, 5000)
     }
   }
 
@@ -96,7 +96,7 @@ function MyBagFinal() {
 
         setTimeout(() => {
           setValidationMessage('')
-        }, 3000)
+        }, 5000)
       }
     } else {
       setPriceValue('0')
