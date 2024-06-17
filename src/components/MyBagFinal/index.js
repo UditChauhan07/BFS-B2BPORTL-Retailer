@@ -18,7 +18,7 @@ function MyBagFinal() {
   const [orderDesc, setOrderDesc] = useState(null);
   const [PONumber, setPONumber] = useState(POGenerator());
   const [buttonActive, setButtonActive] = useState(false);
-  const { addOrder, orderQuantity, deleteOrder, orders, setOrders,setOrderProductPrice } = useBag();
+  const { addOrder, orderQuantity, deleteOrder, orders, setOrders, setOrderProductPrice } = useBag();
   const [bagValue, setBagValue] = useState(fetchBeg())
   const [isOrderPlaced, setIsOrderPlaced] = useState(0);
   const [isPOEditable, setIsPOEditable] = useState(false);
